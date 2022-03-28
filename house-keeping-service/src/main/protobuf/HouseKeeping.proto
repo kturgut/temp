@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "avliono.housekeeping.proto";
+
+package housekeeping;
+
+message HousekeepingConfig {
+  int32 maximumRuntimeForHouseKeepingJobInMinutes = 1;
+}
+
+message StartHouseKeepingJob {
+  string terminalId = 1;
+  string blockId = 2;
+  fixed64 requestedOn  = 3;
+  int32 minBatchSize = 4;
+  uint32 minWorkQueueSize = 5; // must be less than minBatchSize
+  uint64 stopTime = 6;
+  Trigger requestedBy = 7;
+}
+
+message StopHouseKeepingJob {
+  uint64 jobId = 1;
+  fixed64 requestedOn  = 2;
+  Trigger requestedBy = 6;
+}
+
+message PauseHouseKeepingJob {
+  uint64 jobId = 1;
+  fixed64 requestedOn  = 2;
+  Trigger requestedBy = 6;
+}
+
+message ResumeHouseKeepingAccepted {
+  uint64 jobId = 1;
+  fixed64 receivedOn  = 2;
+}
+
+message StopHouseKeepingAccepted {
+  uint64 jobId = 1;
+  fixed64 receivedOn  = 2;
+}
+
+message PauseHouseKeepingAccepted {
+  uint64 jobId = 1;
+  fixed64 receivedOn  = 2;
+}
+
+
+message ResumeHouseKeepingJob {
+  uint64 jobId = 1;
+  fixed64 requestedOn  = 2;
+  Trigger requestedBy = 6;
+}
+
+
+message HouseKeepingJobCreated {
+  uint64 jobId = 1;
+  fixed64 createdOn  = 2;
+}
+
+message HouseKeepingJobStopped {
+  uint64 jobId = 1;
+  fixed64 createdOn  = 2;
+}
+
+message HouseKeepingJobPaused {
+  uint64 jobId = 1;
+  fixed64 createdOn  = 2;
+}
+
+message HouseKeepingJobResumed {
+  uint64 jobId = 1;
+  fixed64 createdOn  = 2;
+}
+
+
+message CompositeJobId {
+    string jobId = 1;
+    string blockId = 2;
+    string terminalId = 3;
+}
+
+//message JobId {
+//  oneof sealed_value {
+//    uint64 blockId = 1;
+//    uint64 jobId = 2;
+//  }
+//}
+
+message CheckJobStatus {
+  optional  uint64 blockId = 1;
+  optional  uint64 jobId = 2;
+}
+
+message GetHouseKeepingJobsSummary {
+  uint64 terminalId = 1;
+}
+
+message GetHouseKeepingJobsDetail {
+  uint64 terminalId = 1;
+}
+
+message HouseKeepingJobsSummary {
+   repeated JobSummary jobs = 1;
+}
+
+message HouseKeepingJobsDetail {
+  repeated JobDetail jobs = 1;
+}
+
+
+message HouseKeepingJobInfo {
+  optional  JobSummary summary = 1;
+  optional  JobDetail detail = 2;
+  enum Status {
+    Created = 0;
+    Started = 1;
+    Paused = 2;
+    Resumed = 3;
+    Stopped = 4;
+    Aborted = 5;
+  }
+}
+
+message JobMeasures {
+  uint32 numberOfContainersOnBlock = 1;
+  uint32 numberOfWorkInstructionCreationRequestsSent = 2;
+  uint32 numberOfWorkInstructionCreationRequestAccepted = 3;
+  uint32 numberOfWorkInstructionCreationRequestRejected = 4;
+  uint32 numberOfMoveInstructionCompleted = 5;
+  uint32 numberOfMoveInstructionSuccessful = 6;
+  uint32 numberOfMoveInstructionCancelledByOperator = 7;
+  uint32 numberOfMoveInstructionCancelledByAvlinoUser = 8;
+  uint64 secondsSinceStart = 9;
+
+  // additional stuff to be added here..
+  uint32 numberOfTrucksArrivingWithinAnHour = 10;
+  uint32 numberOfCranesWorkingOnBlock = 11;
+}
+
+message JobSummary {
+ uint64 jobId = 1;
+ HouseKeepingJobInfo.Status status = 2;
+ int32 batchSize = 3;
+ Trigger startedBy = 4;
+ uint64 startedOn = 5;
+ optional Trigger stoppedBy = 6;
+ optional uint64 stoppedOn = 7;
+ uint32 numberOfBatchesSent = 8;
+ JobMeasures measures = 9;
+}
+
+message BatchSummary {
+  int32 batchId = 1;
+  Trigger startedBy = 4;
+  uint64 startedOn = 5;
+  optional Trigger stoppedBy = 6;
+  optional Trigger stoppedOn = 7;
+  JobMeasures measures = 9;
+}
+
+//message Plan {
+//
+//}
+//
+//message MoveInstruction {
+//  uint64 unitId = 1;
+//  uint64 fromLocation
+//  uint65 toLocation/
+//}
+
+
+message JobDetail {
+  uint64 jobId = 1;
+  HouseKeepingJobInfo.Status status = 2;
+  int32 batchSize = 3;
+  Trigger startedBy = 4;
+  uint64 startedOn = 5;
+  optional Trigger stoppedBy = 6;
+  optional Trigger stoppedOn = 7;
+  JobMeasures measures = 8;
+  repeated BatchSummary batches = 9;
+}
+
+message Trigger {
+  string triggerType = 1;
+  optional string userId = 2;
+  optional string scheduleId = 3;
+}

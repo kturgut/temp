@@ -1,0 +1,9 @@
+target/
+.idea/
+.bsp/
+project/project/
+project/target
+project/plugins/project/
+// :q.iml
+.DS_Store
+out/
